@@ -6,6 +6,7 @@
 
 var React = require('react-native');
 var _ = require('lodash');
+var sprintf = require("sprintf-js").sprintf;
 var {
   AppRegistry,
   StyleSheet,
@@ -17,12 +18,13 @@ var {
 var PickerItemIOS = PickerIOS.Item;
 
 var MAKES_URL = 'http://localhost:8080/car/makes';
+var MODELS_URL = 'http://localhost:8080/car/%s/models';
 
 var pickerDemo = React.createClass({
   getInitialState: function() {
     return {
       selectedMake: 'alfa',
-      loaded: false
+      makeLoaded: false
     };
   },
 
@@ -31,8 +33,32 @@ var pickerDemo = React.createClass({
   },
 
   render: function() {
-    if (!this.state.loaded) {
+    if (!this.state.makeLoaded) {
       return this.renderLoadingView();
+    }
+
+    var modelPicker;
+    if (this.state.modelLoaded) {
+      modelPicker = (<PickerIOS
+        selectedValue={this.state.modelIndex}
+        key={this.state.selectedMake}
+        onValueChange={(modelIndex) => this.setState({modelIndex})}>
+        {this.state.models.map(
+          (modelName, modelIndex) => (
+            <PickerItemIOS
+              key={this.state.selectedMake + '_' + modelIndex}
+              value={modelIndex}
+              label={modelName}
+            />
+          ))
+        }
+      </PickerIOS>);
+    } else {
+      modelPicker = (
+        <Text>
+          Model Loading...
+        </Text>
+      );
     }
 
     return (
@@ -40,7 +66,7 @@ var pickerDemo = React.createClass({
         <Text>Please choose a make for your car:</Text>
         <PickerIOS
            selectedValue={this.state.selectedMake}
-           onValueChange={(selectedMake) => this.setState({selectedMake, modelIndex: 0})}>
+           onValueChange={this.makeChange}>
            {this.state.makes.map((carMake) => (
             <PickerItemIOS
               key={carMake.key}
@@ -51,8 +77,14 @@ var pickerDemo = React.createClass({
           )}
         </PickerIOS>
         <Text>Please choose a model of {this.getMakeLable(this.state.makes, this.state.selectedMake)}:</Text>
+        {modelPicker}
       </View>
     );
+  },
+
+  makeChange: function(selectedMake) {
+    this.setState({selectedMake, modelIndex: 0});
+    this.fetchModelsData();
   },
 
   getMakeLable: function(makes, key) {
@@ -75,7 +107,21 @@ var pickerDemo = React.createClass({
       .then((responseData) => {
         this.setState({
           makes: responseData,
-          loaded: true,
+          makeLoaded: true,
+        });
+
+        this.makeChange(this.state.selectedMake);
+      })
+      .done();
+  },
+
+  fetchModelsData: function() {
+    fetch(sprintf(MODELS_URL, this.state.selectedMake))
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.setState({
+          models: responseData,
+          modelLoaded: true
         });
       })
       .done();
