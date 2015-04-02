@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react-native');
+var _ = require('lodash');
 var {
   AppRegistry,
   StyleSheet,
@@ -49,8 +50,13 @@ var pickerDemo = React.createClass({
             )
           )}
         </PickerIOS>
+        <Text>Please choose a model of {this.getMakeLable(this.state.makes, this.state.selectedMake)}:</Text>
       </View>
     );
+  },
+
+  getMakeLable: function(makes, key) {
+    return _.result(_.findWhere(makes, {key: key}), 'value');
   },
 
   renderLoadingView: function() {
