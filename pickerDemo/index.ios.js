@@ -26,7 +26,7 @@ var pickerDemo = React.createClass({
   },
 
   componentDidMount: function() {
-    this.fetchData();
+    this.fetchMakesData();
   },
 
   render: function() {
@@ -38,7 +38,8 @@ var pickerDemo = React.createClass({
       <View style={styles.container}>
         <Text>Please choose a make for your car:</Text>
         <PickerIOS
-           selectedValue={this.state.selectedMake}>
+           selectedValue={this.state.selectedMake}
+           onValueChange={(selectedMake) => this.setState({selectedMake, modelIndex: 0})}>
            {this.state.makes.map((carMake) => (
             <PickerItemIOS
               key={carMake.key}
@@ -62,7 +63,7 @@ var pickerDemo = React.createClass({
     )
   },
 
-  fetchData: function() {
+  fetchMakesData: function() {
     fetch(MAKES_URL)
       .then((response) => response.json())
       .then((responseData) => {
