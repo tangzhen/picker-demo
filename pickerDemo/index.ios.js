@@ -15,41 +15,64 @@ var {
 
 var PickerItemIOS = PickerIOS.Item;
 
-var CAR_MAKES_AND_MODELS = {
-  amc: {
-    name: 'AMC',
-    models: ['AMX', 'Concord', 'Eagle', 'Gremlin', 'Matador', 'Pacer'],
-  },
-  alfa: {
-    name: 'Alfa-Romeo',
-    models: ['159', '4C', 'Alfasud', 'Brera', 'GTV6', 'Giulia', 'MiTo', 'Spider'],
-  }
-}
+var MAKES_URL = 'http://localhost:8080/car/makes';
 
 var pickerDemo = React.createClass({
   getInitialState: function() {
     return {
-      carMake: 'alfa'
+      selectedMake: 'alfa',
+      loaded: false
     };
   },
+
+  componentDidMount: function() {
+    this.fetchData();
+  },
+
   render: function() {
+    if (!this.state.loaded) {
+      return this.renderLoadingView();
+    }
+
     return (
       <View style={styles.container}>
         <Text>Please choose a make for your car:</Text>
         <PickerIOS
-           selectedValue={this.state.carMake}>
-           {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (
+           selectedValue={this.state.selectedMake}>
+           {this.state.makes.map((carMake) => (
             <PickerItemIOS
-              key={carMake}
-              value={carMake}
-              label={CAR_MAKES_AND_MODELS[carMake].name}
+              key={carMake.key}
+              value={carMake.key}
+              label={carMake.value}
               />
             )
           )}
         </PickerIOS>
       </View>
     );
-  }
+  },
+
+  renderLoadingView: function() {
+    return (
+      <View style={styles.container}>
+        <Text>
+          Loading data...
+        </Text>
+      </View>
+    )
+  },
+
+  fetchData: function() {
+    fetch(MAKES_URL)
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.setState({
+          makes: responseData,
+          loaded: true,
+        });
+      })
+      .done();
+  },
 });
 
 var styles = StyleSheet.create({
