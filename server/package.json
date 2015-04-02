@@ -1,0 +1,17 @@
+{
+  "name": "picker-server",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "TANG, Zhen",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.12.3",
+    "ip": "^0.3.2",
+    "underscore": "^1.8.2"
+  }
+}
